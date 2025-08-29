@@ -3,38 +3,58 @@ name: Build and publish OCA Repository Helm Chart
 on:
   push:
     branches:
-      - main
+      - '**'
     tags:
+      - '**'
+    paths-ignore:
+      - 'releases/**'
+  pull_request:
+    branches:
       - '**'
   workflow_dispatch:
 
+env:
+  REGISTRY: ghcr.io
+  DOCKER_IMAGE_NAME: thclab/oca-repository
+
 jobs:
-  publish_helm:
+  build_and_publish:
     runs-on: ubuntu-latest
     permissions:
       contents: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Install Helm
         uses: azure/setup-helm@v3
 
-      - name: Set chart version
+      - name: Make versions
         run: |
-          VERSION_APP=$(cat VERSION)
-          echo "VERSION_APP=$VERSION_APP" >> $GITHUB_ENV
+          cd "${{ github.workspace }}"
+          chmod +x ./tools/version.sh
+          ./tools/version.sh "${{ env.REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}"
+          echo "VERSION_APP=$(cat ./VERSION_APP)" >> $GITHUB_ENV
+          echo "CHART_VERSION=$(cat ./VERSION_CHART)" >> $GITHUB_ENV
+
+      - name: Patch values.yaml with upstream repo
+        run: |
+          sed -i "s#repository:.*#repository: ghcr.io/thclab/oca-repository#" ./server/charts/oca-repository/values.yaml
 
       - name: Package Helm chart
         run: |
           cd server/charts
           helm dependency update oca-repository || true
-          helm package oca-repository --version $VERSION_APP --app-version $VERSION_APP
-          mkdir -p ../../helm-charts
-          mv oca-repository-$VERSION_APP.tgz ../../helm-charts/
+          helm package oca-repository \
+            --version $CHART_VERSION \
+            --app-version $VERSION_APP
+
+      - name: Move packaged chart
+        run: |
+          mkdir -p ./helm-charts
+          mv server/charts/oca-repository-*.tgz ./helm-charts/
 
       - name: Publish Helm charts
         uses: stefanprodan/helm-gh-pages@master
