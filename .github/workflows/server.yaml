@@ -48,13 +48,13 @@ jobs:
 
       - name: Package Helm chart
         run: |
-          cd server/charts
-          helm dependency update oca-repository || true
-          helm package oca-repository \
+          cd server/charts/oca-repository
+          helm dependency update || true
+          helm package . \
             --version $CHART_VERSION \
             --app-version $VERSION_APP
-          mkdir -p ../../helm-charts
-          mv oca-repository-$CHART_VERSION.tgz ../../helm-charts/
+          mkdir -p ../../../helm-charts
+          mv oca-repository-$CHART_VERSION.tgz ../../../helm-charts/
 
       - name: Publish Helm charts
         uses: stefanprodan/helm-gh-pages@master
