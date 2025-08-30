@@ -61,5 +61,5 @@ jobs:
         uses: stefanprodan/helm-gh-pages@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          charts_dir: ./helm-charts
+          charts_dir: ./server/charts/oca-repository
           target_dir: .
