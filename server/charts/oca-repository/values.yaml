@@ -18,3 +18,11 @@ ingress:
   tlsSecret: oca-repository-tls
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
+
+persistence:
+  enabled: false
+  existingClaim: ""
+  accessModes:
+    - ReadWriteOnce
+  size: 1Gi
+  storageClassName: ""
