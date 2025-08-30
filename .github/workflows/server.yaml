@@ -15,21 +15,26 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  DOCKER_IMAGE_NAME: thclab/oca-repository
+  DOCKER_IMAGE_NAME: hiro-microdatacenters-bv/ds-oca-integration
 
 jobs:
   build_and_publish:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      packages: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Install Helm
         uses: azure/setup-helm@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Make versions
         run: |
@@ -37,28 +42,27 @@ jobs:
           chmod +x ./tools/version.sh
           ./tools/version.sh "${{ env.REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}"
           echo "VERSION_APP=$(cat ./VERSION_APP)" >> $GITHUB_ENV
+          echo "DOCKER_IMAGES=$(cat ./DOCKER_IMAGES)" >> $GITHUB_ENV
+          echo "DOCKER_TAGS=$(cat ./VERSION_DOCKER)" >> $GITHUB_ENV
           echo "CHART_VERSION=$(cat ./VERSION_CHART)" >> $GITHUB_ENV
-
-      - name: Patch values.yaml with upstream repo
-        run: |
-          sed -i "s#repository:.*#repository: ghcr.io/thclab/oca-repository#" ./server/charts/oca-repository/values.yaml
 
       - name: Package Helm chart
         run: |
           cd server/charts
           helm dependency update oca-repository || true
+          helm lint oca-repository
           helm package oca-repository \
             --version $CHART_VERSION \
             --app-version $VERSION_APP
-
-      - name: Move packaged chart
-        run: |
-          mkdir -p ./helm-charts
-          mv server/charts/oca-repository-*.tgz ./helm-charts/
-
+          mkdir -p ../../helm-charts
+          mv oca-repository-$CHART_VERSION.tgz ../../helm-charts/
+      - name: Create a GitHub Release
+        run: gh release create "${{ env.VERSION_APP }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish Helm charts
         uses: stefanprodan/helm-gh-pages@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          charts_dir: ./helm-charts
-          target_dir: ./helm-charts
+          charts_dir: "./server/charts"
+          target_dir:  "./helm-charts/"
