@@ -1,4 +1,4 @@
-namespace: ki
+namespace: marketplace
 
 replicaCount: 1
 

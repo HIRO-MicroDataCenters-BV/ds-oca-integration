@@ -11,7 +11,7 @@ metadata:
 spec:
   ingressClassName: {{ .Values.ingress.className }}
   rules:
-    - host: oca-repository.ki.{{ .Values.ingress.hostBase }}
+    - host: oca-repository.marketplace.{{ .Values.ingress.hostBase }}
       http:
         paths:
           - path: /
@@ -23,6 +23,6 @@ spec:
                   number: {{ .Values.service.port }}
   tls:
     - hosts:
-        - oca-repository.ki.{{ .Values.ingress.hostBase }}
+        - oca-repository.marketplace.{{ .Values.ingress.hostBase }}
       secretName: {{ .Values.ingress.tlsSecret }}
 {{- end }}
