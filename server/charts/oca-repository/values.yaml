@@ -6,6 +6,31 @@ image:
   repository: ghcr.io/thclab/oca-repository
   tag: "0.8.1"
   pullPolicy: IfNotPresent
+  pullSecret: ""
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+securityContext: {}
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
 
 service:
   type: ClusterIP
@@ -26,3 +51,25 @@ persistence:
     - ReadWriteOnce
   size: 1Gi
   storageClassName: ""
+
+env:
+  - name: LOG_LEVEL
+    value: "INFO"
+  - name: DS_OCA_REPOSITORY__BUNDLES_URL
+    value: "https://oca-repository.marketplace.nextgen.hiro-develop.nl/oca-bundles"
+
+
+nodeSelector:
+  role: marketplace
+
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "250m"
+  limits:
+    memory: "128Mi"
+    cpu: "500m"
+
+tolerations: []
+
+affinity: {}
