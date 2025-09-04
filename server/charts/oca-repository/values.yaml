@@ -1,0 +1,75 @@
+namespace: marketplace
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/thclab/oca-repository
+  tag: "0.8.1"
+  pullPolicy: IfNotPresent
+  pullSecret: ""
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+securityContext: {}
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+
+service:
+  type: ClusterIP
+  port: 8000
+
+ingress:
+  enabled: true
+  className: nginx
+  hostBase: nextgen.hiro-develop.nl
+  tlsSecret: oca-repository-tls
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+
+persistence:
+  enabled: false
+  existingClaim: ""
+  accessModes:
+    - ReadWriteOnce
+  size: 1Gi
+  storageClassName: ""
+
+env:
+  - name: LOG_LEVEL
+    value: "INFO"
+  - name: DS__OCA_REPOSITORY_BUNDLES_URL
+    value: "https://oca-repository.marketplace.nextgen.hiro-develop.nl/oca-bundles"
+
+
+nodeSelector:
+  role: marketplace
+
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "250m"
+  limits:
+    memory: "128Mi"
+    cpu: "500m"
+
+tolerations: []
+
+affinity: {}
