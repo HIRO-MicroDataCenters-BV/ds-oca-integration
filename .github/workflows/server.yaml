@@ -13,10 +13,6 @@ on:
       - '**'
   workflow_dispatch:
 
-env:
-  REGISTRY: ghcr.io
-  DOCKER_IMAGE_NAME: hiro-microdatacenters-bv/ds-oca-integration
-
 jobs:
   build_and_publish:
     runs-on: ubuntu-latest
