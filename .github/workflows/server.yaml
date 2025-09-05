@@ -21,32 +21,41 @@ jobs:
       packages: write
 
     steps:
+      # Checkout repo with full history
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # Install Helm CLI
       - name: Install Helm
         uses: azure/setup-helm@v3
 
+      # Install yq to read values.yaml
       - name: Install yq
-        run: sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && sudo chmod +x /usr/bin/yq
+        run: |
+          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
 
+      # Generate versions
       - name: Make versions
         id: versions
         run: |
-          # Static app version from values.yaml (e.g., image.tag: "0.8.1")
+          cd "${{ github.workspace }}"
+
+          # Get app (image) version from values.yaml
           APP_VERSION=$(yq '.image.tag' server/charts/oca-repository/values.yaml | tr -d '"')
 
-          # Dynamic chart version (semver compatible with dashes)
-          DAY_OF_MONTH=$(date +%-d)
-          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/[^a-zA-Z0-9-]/-/g')
-          COMMIT_SHA=$(git rev-parse --short HEAD)
-          CHART_VERSION="0.1.0-dev-${DAY_OF_MONTH}-${BRANCH_NAME}-${COMMIT_SHA}"
+          # Run your existing version.sh to generate chart version
+          chmod +x ./tools/version.sh
+          ./tools/version.sh ghcr.io/hiro-microdatacenters-bv/ds-oca-integration
+
+          CHART_VERSION=$(cat ./VERSION_CHART)
 
           echo "app_version=${APP_VERSION}" >> $GITHUB_OUTPUT
           echo "chart_version=${CHART_VERSION}" >> $GITHUB_OUTPUT
 
+      # Package Helm chart with chart + app version
       - name: Package Helm chart
         run: |
           cd server/charts
@@ -58,14 +67,16 @@ jobs:
           mkdir -p ../../helm-charts
           mv oca-repository-${{ steps.versions.outputs.chart_version }}.tgz ../../helm-charts/
 
+      # Create GitHub Release tagged by CHART_VERSION
       - name: Create a GitHub Release
         run: gh release create "${{ steps.versions.outputs.chart_version }}"
         env:
-            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Publish Helm charts to gh-pages
       - name: Publish Helm charts
         uses: stefanprodan/helm-gh-pages@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          charts_dir: "./server/charts"
+          charts_dir: "./helm-charts"
           target_dir:  "./helm-charts/"
