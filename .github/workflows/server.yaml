@@ -13,10 +13,6 @@ on:
       - '**'
   workflow_dispatch:
 
-env:
-  REGISTRY: ghcr.io
-  DOCKER_IMAGE_NAME: hiro-microdatacenters-bv/ds-oca-integration
-
 jobs:
   build_and_publish:
     runs-on: ubuntu-latest
@@ -57,7 +53,7 @@ jobs:
           mkdir -p ../../helm-charts
           mv oca-repository-$CHART_VERSION.tgz ../../helm-charts/
       - name: Create a GitHub Release
-        run: gh release create "${{ env.VERSION_APP }}"
+        run: gh release create "${{ steps.versions.outputs.chart_version }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish Helm charts
