@@ -31,7 +31,6 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v3
 
-      # Install yq to read values.yaml
       - name: Install yq
         run: |
           sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
