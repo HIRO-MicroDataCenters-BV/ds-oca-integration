@@ -29,12 +29,15 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v3
 
-      - name: Get Chart and App Version
+      - name: Make versions
         id: versions
         run: |
-          # Read the static version from values.yaml
+          # Static app version comes from values.yaml (e.g. image.tag = 0.8.1)
           APP_VERSION=$(yq '.image.tag' server/charts/oca-repository/values.yaml)
-          CHART_VERSION=$APP_VERSION
+
+          # Dynamic chart version (commit-based)
+          CHART_VERSION="0.1.0-dev.$(date +%d).${GITHUB_REF_NAME}.$(git rev-parse --short HEAD)"
+
           echo "app_version=$APP_VERSION" >> $GITHUB_OUTPUT
           echo "chart_version=$CHART_VERSION" >> $GITHUB_OUTPUT
 
@@ -50,7 +53,7 @@ jobs:
           mv oca-repository-${{ steps.versions.outputs.chart_version }}.tgz ../../helm-charts/
 
       - name: Create a GitHub Release
-        run: gh release create "v${{ steps.versions.outputs.app_version }}"
+        run: gh release create "${{ steps.versions.outputs.chart_version }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
