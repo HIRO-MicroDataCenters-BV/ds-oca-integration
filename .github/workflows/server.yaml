@@ -41,23 +41,18 @@ jobs:
         id: versions
         run: |
           cd "${{ github.workspace }}"
-          
-          # Get app (image) version from values.yaml - this is stable
+
+          # Get app (image) version from values.yaml
           APP_VERSION=$(yq '.image.tag' server/charts/oca-repository/values.yaml | tr -d '"')
-          
+
           # Run your existing version.sh to generate chart version
           chmod +x ./tools/version.sh
-          ./tools/version.sh "${{ env.REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}"
-          
+          ./tools/version.sh ghcr.io/hiro-microdatacenters-bv/ds-oca-integration
+
           CHART_VERSION=$(cat ./VERSION_CHART)
-          
-          echo "=== Generated Versions ==="
-          echo "APP_VERSION=${APP_VERSION}"
-          echo "CHART_VERSION=${CHART_VERSION}"
-          echo "=========================="
-          
-          echo "APP_VERSION=${APP_VERSION}" >> $GITHUB_ENV
-          echo "CHART_VERSION=${CHART_VERSION}" >> $GITHUB_ENV
+
+          echo "app_version=${APP_VERSION}" >> $GITHUB_OUTPUT
+          echo "chart_version=${CHART_VERSION}" >> $GITHUB_OUTPUT
 
       # Package Helm chart with chart + app version
       - name: Package Helm chart
