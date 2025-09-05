@@ -23,15 +23,6 @@ podLabels: {}
 podSecurityContext: {}
 securityContext: {}
 
-livenessProbe:
-  httpGet:
-    path: /health
-    port: http
-readinessProbe:
-  httpGet:
-    path: /health
-    port: http
-
 service:
   type: ClusterIP
   port: 8000
@@ -52,10 +43,13 @@ persistence:
   size: 1Gi
   storageClassName: ""
 
+livenessProbe: {}
+readinessProbe: {}
+
 env:
   - name: LOG_LEVEL
     value: "INFO"
-  - name: DS__OCA_REPOSITORY_BUNDLES_URL
+  - name: DS_OCA_REPOSITORY_BUNDLES_URL
     value: "https://oca-repository.marketplace.nextgen.hiro-develop.nl/oca-bundles"
 
 
