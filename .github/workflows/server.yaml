@@ -59,10 +59,9 @@ jobs:
           mv oca-repository-${{ steps.versions.outputs.chart_version }}.tgz ../../helm-charts/
 
       - name: Create a GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
         run: gh release create "${{ steps.versions.outputs.chart_version }}"
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish Helm charts
         uses: stefanprodan/helm-gh-pages@master
