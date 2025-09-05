@@ -68,7 +68,7 @@ jobs:
 
       # Create GitHub Release tagged by CHART_VERSION
       - name: Create a GitHub Release
-        run: gh release create "${{ env.VERSION_APP }}"
+        run: gh release create "${{ steps.versions.outputs.chart_version }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
