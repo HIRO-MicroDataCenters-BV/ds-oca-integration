@@ -23,15 +23,6 @@ podLabels: {}
 podSecurityContext: {}
 securityContext: {}
 
-livenessProbe:
-  httpGet:
-    path: /health
-    port: http
-readinessProbe:
-  httpGet:
-    path: /health
-    port: http
-
 service:
   type: ClusterIP
   port: 8000
