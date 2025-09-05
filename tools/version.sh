@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 set -o errexit
 set -o nounset
 
@@ -8,8 +7,6 @@ CHART_NAME="oca-repository"
 
 VERSION_APP_PATH="./VERSION_APP"
 VERSION_CHART_PATH="./VERSION_CHART"
-VERSION_DOCKER_PATH="./VERSION_DOCKER"
-DOCKER_IMAGES_PATH="./DOCKER_IMAGES"
 
 make_version() {
   GIT_SHA=$(git log -1 --pretty=%H)
@@ -19,58 +16,28 @@ make_version() {
   VERSION_BASE=$(cat VERSION)
   GIT_COUNT=$(git rev-list --count "$VERSION_BASE_HASH"..HEAD)
 
-  BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF##*/}}  # Branch or PR or tag
-  TAG=$( [[ $GITHUB_REF == refs/tags/* ]] && echo "${GITHUB_REF##refs/tags/}" || echo "" )
+  BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF##*/}}  # branch name or tag
 
-  if [[ "$TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    VERSION_APP="$TAG"
-    VERSION_CHART="$TAG"
-    VERSION_DOCKER="$TAG,${TAG}-${SHORT_SHA}"
-  else
-    BRANCH_TOKEN=$(echo "${BRANCH//[^a-zA-Z0-9-_.]/-}" | cut -c1-16 | sed -e 's/-$//')
-    VERSION_APP="$VERSION_BASE+dev${GIT_COUNT}-${BRANCH_TOKEN}-${SHORT_SHA}"
-    VERSION_CHART="$VERSION_BASE-dev.${GIT_COUNT}.${BRANCH_TOKEN}.${SHORT_SHA}"
-    VERSION_DOCKER="$VERSION_CHART"
-  fi
+  # Format chart version like: 0.1.0+dev35-main-db1a9cc1
+  VERSION_CHART="${VERSION_BASE}+dev${GIT_COUNT}-${BRANCH}-${SHORT_SHA}"
 
-  echo -n "${VERSION_APP}" > "${VERSION_APP_PATH}"
-  echo -n "${VERSION_DOCKER}" > "${VERSION_DOCKER_PATH}"
+  echo -n "${VERSION_BASE}" > "${VERSION_APP_PATH}"   # app version stays base
   echo -n "${VERSION_CHART}" > "${VERSION_CHART_PATH}"
 }
 
-make_docker_images_with_tags() {
-  DOCKER_IMAGE_NAME="$1"
-  DOCKER_IMAGE_TAGS=$(cat "${VERSION_DOCKER_PATH}")
-
-  IFS=',' read -ra TAGS_ARRAY <<< "$DOCKER_IMAGE_TAGS"
-
-  RESULT=""
-  for TAG in "${TAGS_ARRAY[@]}"; do
-    RESULT+="${DOCKER_IMAGE_NAME}:${TAG},"
-  done
-
-  RESULT=${RESULT%,}
-  echo -n "${RESULT}" > "${DOCKER_IMAGES_PATH}"
-}
-
-patch_helm_chart() {
-  DOCKER_IMAGE_NAME="$1"
+patch_chart_yaml() {
   CHART_PATH="./server/charts/${CHART_NAME}"
-  DOCKER_IMAGE_TAG=$(rev "${VERSION_DOCKER_PATH}" | cut -d ',' -f 1 | rev)
   VERSION_CHART=$(cat "${VERSION_CHART_PATH}")
 
-  sed -i "s#repository: .*#repository: $DOCKER_IMAGE_NAME#" "${CHART_PATH}/values.yaml"
-  sed -i "s#tag: .*#tag: \"$DOCKER_IMAGE_TAG\"#" "${CHART_PATH}/values.yaml"
-  sed -i "s#version: .*#version: \"$VERSION_CHART\"#" "${CHART_PATH}/Chart.yaml"
-  sed -i "s#appVersion: .*#appVersion: \"$VERSION_CHART\"#" "${CHART_PATH}/Chart.yaml"
+  # Update only Chart.yaml (not values.yaml!)
+  sed -i "s#^version:.*#version: ${VERSION_CHART}#" "${CHART_PATH}/Chart.yaml"
+  sed -i "s#^appVersion:.*#appVersion: \"${VERSION_CHART}\"#" "${CHART_PATH}/Chart.yaml"
 }
 
 main() {
-  DOCKER_IMAGE_NAME="$1"
   cd "$ROOT"
   make_version
-  make_docker_images_with_tags "$DOCKER_IMAGE_NAME"
-  patch_helm_chart "$DOCKER_IMAGE_NAME"
+  patch_chart_yaml
 }
 
 main "$@"
