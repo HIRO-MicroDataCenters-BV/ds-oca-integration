@@ -13,69 +13,57 @@ on:
       - '**'
   workflow_dispatch:
 
+env:
+  REGISTRY: ghcr.io
+
 jobs:
-  build_and_publish:
+  build_chart:
     runs-on: ubuntu-latest
     permissions:
       contents: write
       packages: write
 
     steps:
-      # Checkout repo with full history
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      # Checkout repository
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # Install Helm CLI
+      # Install Helm
       - name: Install Helm
         uses: azure/setup-helm@v3
 
-      - name: Install yq
-        run: |
-          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
-          sudo chmod +x /usr/bin/yq
-
-      # Generate versions
+      # Run version.sh (same as your server job, but no docker stuff)
       - name: Make versions
-        id: versions
         run: |
           cd "${{ github.workspace }}"
-
-          # Get app (image) version from values.yaml
-          APP_VERSION=$(yq '.image.tag' server/charts/oca-repository/values.yaml | tr -d '"')
-
-          # Run your existing version.sh to generate chart version
           chmod +x ./tools/version.sh
-          ./tools/version.sh ghcr.io/hiro-microdatacenters-bv/ds-oca-integration
+          ./tools/version.sh "${{ env.REGISTRY }}/${{ vars.DOCKER_IMAGE_NAME }}"
+          echo "VERSION_APP=$(cat ./VERSION_APP)" >> $GITHUB_ENV
+          echo "CHART_VERSION=$(cat ./VERSION_CHART)" >> $GITHUB_ENV
 
-          CHART_VERSION=$(cat ./VERSION_CHART)
-
-          echo "app_version=${APP_VERSION}" >> $GITHUB_OUTPUT
-          echo "chart_version=${CHART_VERSION}" >> $GITHUB_OUTPUT
-
-      # Package Helm chart with chart + app version
+      # Package Helm chart
       - name: Package Helm chart
         run: |
           cd server/charts
           helm dependency update oca-repository || true
           helm lint oca-repository
           helm package oca-repository \
-            --version ${{ steps.versions.outputs.chart_version }} \
-            --app-version ${{ steps.versions.outputs.app_version }}
+            --version $CHART_VERSION \
+            --app-version $VERSION_APP
           mkdir -p ../../helm-charts
-          mv oca-repository-${{ steps.versions.outputs.chart_version }}.tgz ../../helm-charts/
+          mv oca-repository-$CHART_VERSION.tgz ../../helm-charts/
 
-      # Create GitHub Release tagged by CHART_VERSION
-      - name: Create a GitHub Release
-        run: gh release create "${{ steps.versions.outputs.chart_version }}"
+      # Create GitHub release (tag = VERSION_APP)
+      - name: Create GitHub Release
+        run: gh release create "${{ env.VERSION_APP }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Publish Helm charts to gh-pages
+      # Publish Helm chart to gh-pages
       - name: Publish Helm charts
         uses: stefanprodan/helm-gh-pages@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           charts_dir: "./server/charts"
-          target_dir:  "./helm-charts/"
+          target_dir: "./helm-charts/"
