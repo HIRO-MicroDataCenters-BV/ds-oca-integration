@@ -49,7 +49,7 @@ readinessProbe: {}
 env:
   - name: LOG_LEVEL
     value: "INFO"
-  - name: DS_OCA_REPOSITORY_BUNDLES_URL
+  - name: DS_GLOBAL_OCA_REPOSITORY_BUNDLES_URL
     value: "https://oca-repository.marketplace.nextgen.hiro-develop.nl/oca-bundles"
 
 
