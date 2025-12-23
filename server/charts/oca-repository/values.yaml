@@ -71,6 +71,7 @@ config:
       host: 0.0.0.0
       port: 8000
       log_to_file: false
+      overlayfile_dir: "/data/overlays"
       data_entries_path: "/data/entries"
     database:
       path: "/data/db"
