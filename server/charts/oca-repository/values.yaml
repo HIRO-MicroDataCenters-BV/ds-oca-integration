@@ -36,7 +36,7 @@ ingress:
     cert-manager.io/cluster-issuer: letsencrypt-prod
 
 persistence:
-  enabled: true
+  enabled: false
   existingClaim: ""
   accessModes:
     - ReadWriteOnce
