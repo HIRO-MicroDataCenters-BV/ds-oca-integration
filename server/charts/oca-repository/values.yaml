@@ -64,3 +64,19 @@ resources:
 tolerations: []
 
 affinity: {}
+
+config:
+  data: |
+    application:
+      host: 0.0.0.0
+      port: 8000
+      log_to_file: false
+      data_entries_path: "/data/entries"
+    database:
+      path: "/data/db"
+    cache_storage:
+      path: "/data/cache"
+    search_engine:
+      path: "/data/db_search"
+    ocafiles_cache:
+      path: "/data/oca_repo_cache"
