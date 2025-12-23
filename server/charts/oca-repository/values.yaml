@@ -36,11 +36,11 @@ ingress:
     cert-manager.io/cluster-issuer: letsencrypt-prod
 
 persistence:
-  enabled: false
+  enabled: true
   existingClaim: ""
   accessModes:
     - ReadWriteOnce
-  size: 1Gi
+  size: 5Gi
   storageClassName: ""
 
 env:
