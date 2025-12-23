@@ -4,8 +4,8 @@ replicaCount: 1
 
 image:
   repository: ghcr.io/thclab/oca-repository
-  tag: "0.8.1"
-  pullPolicy: IfNotPresent
+  tag: "2.0.0-rc.1"
+  pullPolicy: Always
   pullSecret: ""
 
 nameOverride: ""
@@ -47,7 +47,7 @@ env:
   - name: LOG_LEVEL
     value: "INFO"
   - name: DS_GLOBAL_OCA_REPOSITORY_BUNDLES_URL
-    value: "https://oca-repository.marketplace.nextgen.hiro-develop.nl/oca-bundles"
+    value: "https://oca-repository.marketplace.nextgen.hiro-develop.nl/api/v2/oca-bundles"
 
 
 nodeSelector:
