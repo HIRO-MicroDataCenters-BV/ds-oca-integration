@@ -42,7 +42,7 @@ spec:
       initContainers:
         - name: init-data-dirs
           image: busybox:1.36
-          command: ['sh','-lc','mkdir -p /data/entries /data/db /data/cache /data/db_search /data/oca_repo_cache && chown -R 1000:1000 /data']
+          command: ['sh','-lc','mkdir -p /data/entries /data/db /data/cache /data/db_search /data/oca_repo_cache /data/overlays && chown -R 1000:1000 /data']
           volumeMounts:
             - name: data
               mountPath: /data
