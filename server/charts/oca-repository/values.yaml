@@ -47,7 +47,7 @@ env:
   - name: LOG_LEVEL
     value: "INFO"
   - name: DS_GLOBAL_OCA_REPOSITORY_BUNDLES_URL
-    value: "https://oca-repository.marketplace.nextgen.hiro-develop.nl/api/v2/oca-bundles"
+    value: "https://oca-repository.marketplace.nextgen.hiro-develop.nl/oca-bundles"
 
 
 nodeSelector:
@@ -70,15 +70,22 @@ config:
     application:
       host: 0.0.0.0
       port: 8000
-      log_to_file: false
-      overlayfile_dir: "/data/overlays"
-      data_entries_path: "/data/entries"
+      data_entries_path: "/tmp"
+      log_to_file: true
+      # if log_to_file set to true and path not set default: /var/log/oca_repository.log
+      log_path: "./logs/oca_repository.log"
+      # path to directory where overlayfile definitions are located
+      overlayfile_dir: "./core_overlays"
+
     database:
-      path: "/data/db"
+      path: "./db"
+
     cache_storage:
-      path: "/data/cache"
+      path: "./cache"
+
     search_engine:
-      path: "/data/db_search"
+      path: "./db_search"
+
     ocafiles_cache:
-      path: "/data/oca_repo_cache"
+      path: "./oca_repo_cache"
 
