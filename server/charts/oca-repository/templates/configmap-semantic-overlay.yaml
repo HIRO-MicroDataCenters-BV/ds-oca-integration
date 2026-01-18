@@ -69,7 +69,7 @@ data:
           WITH KEYS text
           WITH VALUES Text
 
-    ADD overlay sensitive
+    ADD OVERLAY sensitive
       VERSION 2.0.0
       ADD ARRAY attributes
         WITH VALUES attr-names
