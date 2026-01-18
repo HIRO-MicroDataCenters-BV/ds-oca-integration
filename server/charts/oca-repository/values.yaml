@@ -40,7 +40,7 @@ persistence:
   existingClaim: ""
   accessModes:
     - ReadWriteOnce
-  size: 1Gi
+  size: 5Gi
   storageClassName: ""
 
 env:
