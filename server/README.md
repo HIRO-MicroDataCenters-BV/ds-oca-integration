@@ -14,7 +14,7 @@ This chart will deploy the following resources:
 *   A Service to expose the application within the cluster.
 *   An optional Ingress to expose the application outside the cluster.
 *   An optional PersistentVolumeClaim (PVC) for data persistence.
-*   A ServiceAccount for the application.
+*   A ServiceAccount for the application
 
 ## Installing the Chart
 
