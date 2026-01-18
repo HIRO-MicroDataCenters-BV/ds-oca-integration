@@ -4,22 +4,4 @@ metadata:
   name: oca-repository-config
 data:
   config.yml: |
-    application:
-      host: 0.0.0.0
-      port: 8000
-      data_entries_path: "./data_entries"
-      log_to_file: true
-      log_path: "./logs/oca_repository.log"
-      overlayfile_dir: "/app/core_overlays"
-
-    database:
-      path: "./db"
-
-    cache_storage:
-      path: "./cache"
-
-    search_engine:
-      path: "./db_search"
-
-    ocafiles_cache:
-      path: "./oca_repo_cache"
+{{ .Values.config.data | nindent 4 }}
