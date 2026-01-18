@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: oca-repository-core-overlays
-  namespace: marketplace
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
 data:
   semantic.overlayfile: |
     ADD OVERLAY label
