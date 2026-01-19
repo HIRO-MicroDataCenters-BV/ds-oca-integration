@@ -24,7 +24,18 @@ spec:
         {{- end }}
 
     spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
       serviceAccountName: {{ include "oca-repository.serviceAccountName" . }}
+
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -44,6 +55,11 @@ spec:
         - name: oca-repository
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
 
           ports:
             - name: http
@@ -69,13 +85,11 @@ spec:
               readOnly: true
 
       volumes:
-        # Config.yml
         - name: config
           configMap:
             name: oca-repository-config
             optional: false
 
-        # semantic.overlayfile
         - name: core-overlays
           configMap:
             name: oca-repository-core-overlays
