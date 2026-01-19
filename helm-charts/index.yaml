@@ -12,6 +12,16 @@ entries:
     - https://HIRO-MicroDataCenters-BV.github.io/ds-oca-integration/helm-charts/oca-repository-0.1.0+dev51-fixing-versioning-11768bd6.tgz
     version: 0.1.0+dev51-fixing-versioning-11768bd6
   - apiVersion: v2
+    appVersion: 0.1.0-dev.99.updating-docker.55fe98d0
+    created: "2026-01-19T09:12:25.097932952Z"
+    description: A Helm chart for deploying OCA Global Repository
+    digest: 9e321bd228e096ecd452faafc23043cc9d624e6f56ea2d50ae1fe904888007fd
+    name: oca-repository
+    type: application
+    urls:
+    - https://HIRO-MicroDataCenters-BV.github.io/ds-oca-integration/helm-charts/oca-repository-0.1.0-dev.99.updating-docker.55fe98d0.tgz
+    version: 0.1.0-dev.99.updating-docker.55fe98d0
+  - apiVersion: v2
     appVersion: 0.1.0-dev.99.feature-updating.6696bc91
     created: "2026-01-18T20:50:36.067579657Z"
     description: A Helm chart for deploying OCA Global Repository
@@ -901,4 +911,4 @@ entries:
     urls:
     - https://HIRO-MicroDataCenters-BV.github.io/ds-oca-integration/helm-charts/oca-repository-0.1.0-dev.23.version-testing.02f26142.tgz
     version: 0.1.0-dev.23.version-testing.02f26142
-generated: "2026-01-18T20:50:36.066436154Z"
+generated: "2026-01-19T09:12:25.096543314Z"
