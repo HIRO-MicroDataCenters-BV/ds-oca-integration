@@ -64,3 +64,28 @@ resources:
 tolerations: []
 
 affinity: {}
+
+config:
+  data: |
+    application:
+      host: 0.0.0.0
+      port: 8000
+      data_entries_path: "/tmp"
+      log_to_file: true
+      # if log_to_file set to true and path not set default: /var/log/oca_repository.log
+      log_path: "./logs/oca_repository.log"
+      # path to directory where overlayfile definitions are located
+      overlayfile_dir: "/app/core_overlays"
+
+    database:
+      path: "./db"
+
+    cache_storage:
+      path: "./cache"
+
+    search_engine:
+      path: "./db_search"
+
+    ocafiles_cache:
+      path: "./oca_repo_cache"
+
